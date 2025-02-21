@@ -1142,8 +1142,80 @@ _Report raw content:_
 0000_0000, nnnn_nnnn, {raw content}
 
 
+## 17 Feb
+
+Today I shall start implementing the digital circuity for column based RLE, a very simple compression algorithm.
 
 
+It shall simply just produce the following simple coding:
+
+**Basic Column-based all-zero(RLE)**
+
+_Under all zero cases:_
+
+If there're 3 0s
+
+The counter will keep incrementing and produce the following 2 bytes when zero ends or the counter reaches its maximum count.
+
+0rrr_rrrr, rrrr_rrrr
+
+The maximum value this counter can go would just be $2^{15}-1$, this has reserved the following codes:
+
+0000_0000, 0000_0000
+0000_0000, 0000_0001
+0000_0000, 0000_0010
+
+_Under the normal cases:_
+
+This version of coder will not do run-length encoding whatsoever, everything will be presented as uncompressed.
+
+10vv_vvvv, vvvv_vvvv
+
+What will be deciding whether it should be coded or not is there should be at least 3 consecutive 0s.
+
+This should be easy to implement on digital circuity.
 
 
+## 18 Feb
+
+I had a closer look last night about how I should deal with the "residues", I can simply pack them into packets like:
+
+_If there are 6 pixels left:_
+
+1110_vvvv, vvvv_vvvv
+
+This should indicate that there are only 6 pixels in this packet.
+
+Similarly, 5 pixels can be packed as:
+
+1111_10vv, vvvv_vvvv
+
+These are sent because there will be run length encoding for 0s.
+
+
+## 19 Feb
+
+I have just sorted out the finite state machine logic, which should now be okay to implement.
+
+Just finished the implementation and tested with testbench, it should be right.
+
+Decoding of this can be implemented using python and I shall get this design verified.
+
+
+## 20 Feb
+
+The small bugs that would happen when state transitions from CNT back to SORT where buffer count will count incorrectly on the first cycle.
+
+The original implementation will start counting from 1, and now it has been corrected and will correctly accumulate from 0.
+
+
+![The simulation waveform for my column based encoder](./img/Simulation_on_the_encoder_with_output.png)
+
+But there just might be some small issues with this implementation I can think of:
+
++ There is no input control, the module will take a non-stop stream
++ The module cannot stop because there is no stop signal
+
+
+Now the module is ready to be sent to synthesis and place and route.
 
