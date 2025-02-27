@@ -1219,3 +1219,71 @@ But there just might be some small issues with this implementation I can think o
 
 Now the module is ready to be sent to synthesis and place and route.
 
+
+
+## 21 Feb
+
+Today I shall synthesis the design and try a simple implementation to get a rough idea how big this is going to be.
+
+
+The synthesis showed that 162 cells are needed for this implementation, which takes up a total area of 7540.759 um2.
+
+![Area report for col based implementation](./img/col_based_imp_encoder_basic_report_area.png)
+
+
+## 24 Feb
+
+Now I will proceed the implementation in innovus for this very basic column based encoder.
+
+After the layout design, the dimension now is 39.760 X 189.840 = 7,548.0384 um2, which is about the results from synthesis.
+
+I have now just saved another version of the layout with saved power rail space on top and bottom.
+
+now the area is 39.2 X 215.110
+
+Ok, I have now just finished the layout of this encoder, which is surprisingly easy and smooth, no hiccup, no DRC needs fixing, no process antenna needs fixing.
+
+![The complete layout of the column based encoder](./img/newly_implemented_col_encoder_layout.png)
+
+
+
+## 25 Feb
+
+After trying out the implementation, I feel that there are too many output ports to be left on the right side.
+
+I can probably add some extra logic to make it squeeze into 8 signals, so that the whole design can have a proper geometry so that the modules can be fit side by side.
+
+In the meantime, I will need to draft up the digital design for 3-bit column based encoder.
+
+There is a simple finite state machine diagram drawn, this should be easy to implement.
+
+## 26 Feb
+
+Now I should be able to implement the 3-bit column based encoder
+
+Also I am planning on doing the test using cocotb, which offers the flexibility of python.
+
+So far, the working RTL simulators are icarus, verilator, model sim does not seem to work after all.
+
+
+## 27 Feb
+
+So far, there is on thing that I have not sort out in terms of the logic.
+
+This case would happen during SORT. That is when the module needs to report timestamp at a certain point, it needs to clean up and output the current data. This would output the packet as '0_000_000_dat1_dat2_dat3' or '0_000_dat1_dat2_dat3_dat4', these 2 would be indistinguishable because we do not know how many data values have been stored.
+
+During the implementation, I realised that the module has states that cannot deal with incoming data. I am not sure what the interface of the pixel is going to be, but this compression module should have a **busy** signal that marks that the module cannot deal with pixel values at the moment.
+
+
+Finally finished the implementation, now I need to do the testing.
+
+Roughly looking, the simulation looks okay, the counting and state switching seems correct. But I have not tested the running alarm, which should be tested now.
+
+This requires the simulation have run  2^16 cycles.
+
+So far the behaviour looks correct, but I have not tested any extreme cases.
+
+Overall, this encoder is able to handle timestamp report, ditching 0s and keep all the rest and switch between states. But from my impression, this is more complicated than the one I have drafted.
+
+
+
