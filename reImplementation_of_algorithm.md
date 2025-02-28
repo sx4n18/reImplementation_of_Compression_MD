@@ -1286,4 +1286,46 @@ So far the behaviour looks correct, but I have not tested any extreme cases.
 Overall, this encoder is able to handle timestamp report, ditching 0s and keep all the rest and switch between states. But from my impression, this is more complicated than the one I have drafted.
 
 
+## 28 Feb
 
+Since I have finished the implementation, now I want to throw the design into sythesis and get a rough estimation of area.
+
+Since there are a lot of documents needed during synthesis and place and route, and most of them are fairly manual and repetitive, I am thinking of writing a script to generate these documents depending on the flow and technology node.
+
+So after the synthesis, I think genus reported the area of this deisgn is 13,830.332 um2 in total.
+
+Which is a lot bigger compared to my previous design, which is 39.760 X 189.840 = 7,548.0384 um2
+
+![By preliminary synthesis, the new design is much bigger](./img/col_encoder_3B_area_much_bigger.png)
+
+In the meantime, genus reported the power as follow:
+
+![Reported power consumption of the design Col_encoder_3B](./img/Reported_power_col_encoder_3B.png)
+
+
+Also, I made a script that can generate a general constraint file, a setup tcl file and a simple flow tcl file.
+
+Simply change into the directory of your project and type 
+
+```bash
+Gen_doc_syn -f <module_name> [additional_verilog_file_name]
+```
+
+also, there are other options
+
+```bash
+Options:
+  -t, --tech         Specify the technology node (default: xh018_xx31)
+                     All available options xh018(_HD)_xx31, xh018(_HD)_xx33, xh018(_HD)_xx41, xh018(_HD)_xx43
+                     xh018(_HD)_xx51
+  -o  --output       Specify the output directory (default: current directory)  
+  -f, --file        *Specify the design module file name to export corresponding files. (required)
+                     (example: ./syn/<module>_constraint.sdc, ./tcl/<module>_setup.tcl, ./syn/<module>_genus.cmd)
+  -d, --dft          Specify if dft flow is needed
+  -c, --clock        Specify the clock period (unit ns)
+  -h, --help         Display this help message
+  args...            Additional arguments passed to Synthesis (other verilog files)
+
+```
+
+This script has not been comprehensively tested, and it is only for my own use.
