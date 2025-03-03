@@ -1329,3 +1329,40 @@ Options:
 ```
 
 This script has not been comprehensively tested, and it is only for my own use.
+
+
+## 3 Mar
+
+I have now finished synthesis, just have to implement another script that may help MMMC file generation.
+
+I shall have another script drafted and tested.
+
+This script will be called **Gen_doc_pnr**.
+
+Also the useful tool
+
+"get_common_ui_map" 
+
+can translate the clssic command to the stylus common ui command.
+
+This should help a lot about the automation process.
+
+Okay, I think the script that generates a genral mmmc file and load up the design into innovus has succeeded.
+
+The script shall expect the following:
+
+```bash
+Options:
+  -t, --tech         Specify the technology node (default: xh018_xx31)
+                     All available options xh018(_HD)_xx31, xh018(_HD)_xx33, xh018(_HD)_xx41, xh018(_HD)_xx43
+                     xh018(_HD)_xx51
+  -o, --output       Specify the output directory (default: output_docs)
+  -v, --verilog     *Specify the module name (required)
+  -h, --help         Display this help message
+  args...            Additional arguments passed to the synthesis command
+```
+
+
+The floorplan so far has been given as 40.260 X 350.28
+
+This has yet been properly placed yet.
