@@ -1000,7 +1000,7 @@ Sorted first column  subscription    BWT output column   subscription
 		n 					1 				a 				  2
 		n 					2 				a 				  3
 
-````
+```
 Therefore, it is very easy to find the row index and the corresponding l_shift.
 
 
@@ -1016,7 +1016,7 @@ If there is a library of strings $A = {A, B, C}$ with the corresponding appearin
 
 When we were presented a line of string $S = {B, C, A, C, B, ... A, C, B}$, we can do the following formula to find an integer to represent this string.
 
-$$X_t = \floor{\frac{X_{t-1}}{F_{S_t}}} * M + C_{S_t} + mod(X_{t-1}, F_{S_t})$$
+$$X_t = \lfloor{\frac{X_{t-1}}{F_{S_t}}}\rfloor \times M + C_{S_t} + mod(X_{t-1}, F_{S_t})$$
 
 compute this iteratively and find the final number $X$ to represent this string.
 
@@ -1025,8 +1025,10 @@ This is the original version for the encoder if you have all the information, or
 Decoder algorithm works as in the following way:
 
 $$ Slot = mod(X_t, M)$$
-$$ S_t = C_inv(Slot)$$
-$$X_{t-1} = \floor{\frac{X_t}{M}} * F_{S_t} + Slot - C_{S_t}$$
+
+$$ S_t = C_{inv}(Slot)$$
+
+$$X_{t-1} = \lfloor{\frac{X_t}{M}} \rfloor \times F_{S_t} + Slot - C_{S_t}$$
 
 The first formula would basically gave $C_{S_t} + mod(X_{t-1}, F_{S_t})$, this would mean that if the character is A, $0 \le Slot < 0+F_a$. 
 
@@ -1363,6 +1365,6 @@ Options:
 ```
 
 
-The floorplan so far has been given as 40.260 X 350.28
+The floorplan so far has been given as 40.260 X 350.28 = 14,102.2728 um2
 
 This has yet been properly placed yet.
