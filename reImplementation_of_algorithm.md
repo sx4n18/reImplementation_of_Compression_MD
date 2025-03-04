@@ -1368,3 +1368,9 @@ Options:
 The floorplan so far has been given as 40.260 X 350.28 = 14,102.2728 um2
 
 This has yet been properly placed yet.
+
+
+## 4 Mar
+
+Now I shall keep finishing the implementation.
+
