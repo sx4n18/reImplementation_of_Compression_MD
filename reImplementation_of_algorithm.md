@@ -1279,9 +1279,28 @@ During the implementation, I realised that the module has states that cannot dea
 
 Finally finished the implementation, now I need to do the testing.
 
-Roughly looking, the simulation looks okay, the counting and state switching seems correct. But I have not tested the running alarm, which should be tested now.
+Roughly looking, the simulation looks okay, the counting and state switching seems correct. 
 
+![The general accumulating behaviour is correct](./img/Simulation_on_Col_encoder_3B_general_behaviour_correct.png)
+
+The swtiching between accumulating and zero is also correct:
+
+![State switch from SORT to ZERO is correct](./img/State_switch_from_sorting_to_zero_correct.png)
+
+When the state machine transitions from zero back to SORT, it will go through this ressurection state, where 3 16-bit data packets were expected to report the detailed timestamp.
+
+![Resurrection looks correctly reported](./img/State_switch_from_zero_back_to_sort_is_correct.png)
+
+But I have not tested the running alarm, which should be tested now.
 This requires the simulation have run  2^16 cycles.
+
+Alarm went off during SORT state where pre-sorted data were output before the timestamp was reported
+
+![Alarm went off during SORT and it was correctly reported](./img/Alarm_went_off_at_state_SORT_some_may_cause_confusion.png)
+
+Alarm went off during Zero state, and it correctly returned back to ZERO after a brief SORT state
+
+![Alarm went off during Zero and it was corerctly handled](./img/Alarm_went_off_at_state_zero_where_a_brief_SORT_was_produced_b4_it_returns_to_zero.png)
 
 So far the behaviour looks correct, but I have not tested any extreme cases.
 
@@ -1341,9 +1360,9 @@ I shall have another script drafted and tested.
 
 This script will be called **Gen_doc_pnr**.
 
-Also the useful tool
+Also the useful command:
 
-"get_common_ui_map" 
+**get_common_ui_ma** 
 
 can translate the clssic command to the stylus common ui command.
 
@@ -1373,4 +1392,36 @@ This has yet been properly placed yet.
 ## 4 Mar
 
 Now I shall keep finishing the implementation.
+
+Ok, it seems that after detailed roting, the layout is suffering from incredible routing congestion.
+
+![The detailed routing shows that this routing congestion problem is very strong](./img/loads_of_routing_drv_after_detailed_routing.png)
+
+
+This is a failed design, and also proves that the data line cannot be placed on the tight right handside.
+
+On the contrary, last design successfully survived tense routing.
+
+
+## 5 Mar
+
+Now I found another useful command for mapping ccopt command to stylus common ui:
+
+**get_ccopt_property_coomon_ui_map**
+
+in the classic ui, it will look like this:
+
+```tcl
+set_ccopt_property inverter_cells CKINV* 
+```
+
+the corresponding stylus common ui command will look like this:
+
+```tcl
+set_db cts_inverter_cells {CKINV*}
+``` 
+
+Think I should also start translating the legacy UI tcl files provided by Europractice to Stylus common UI
+
+
 
