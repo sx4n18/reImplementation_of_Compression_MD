@@ -1424,4 +1424,149 @@ set_db cts_inverter_cells {CKINV*}
 Think I should also start translating the legacy UI tcl files provided by Europractice to Stylus common UI
 
 
+## 10 Mar
+
+Since we have discussed the case where the compression module might have unknown number of pixels left in a packet, this would only be caused by the fact that the module needs to transition from state **SORT** to **ZERO**. This would mean that the "last packet" should only contain pixel values and 0s.
+
+And considering that we need to count up to 5 0s before switching, the only possible cases would be:
+
+```text
+1)
+
+0_0_0_0_0_0
+
+2)
+
+0_x_0_0_0_0, 0_0_0_0_0_0
+
+3)
+
+0_x_x_0_0_0, 0_0_0_0_0_0
+
+...
+```
+
+So it appears that the last packet should always be 0_0_0_0_0_0 before switching to state **ZERO**
+
+I checked my old log again, think the problem does not lie at the transition between state of **SORT** and **ZERO** but the transition between **SORT** and **ALARM**.
+
+This is because the alarm may be set off during the accumulation of a packet:
+
+```text
+
+Timestamp: t0, t1, t2...
+
+t0) 
+
+0_0_0_x_x_x
+
+t1)
+
+Alarm rang off, the packet needs to be clean up
+
+output: 0_0_0_x_x_x
+
+t2)
+
+Alarm timestamp output
+
+output: 1_Tim_eSt_amp_cou_nt!
+
+
+```
+
+So for the packet before the timestamp, we do not know how many pixel values were accumulated in there.
+
+
+This may be fixable by setting the default 15-bit pre_sort_data register as
+
+"111_1111_1111_1110"
+
+So in normal cases:
+
+when all 5 pixels were accumulated, all the 1s will be flushed out.
+
+
+When switch into **ZERO**:
+
+we might have cases like the following 
+
+```text
+
+1) 
+
+0_x_x_x_0_0
+
+2)
+
+0_7_6_0_0_0
+
+```
+
+This will cause confusion at the decoding process, but this should be fixable. As to fix this confusion, I simply just do not output the second packet. 
+
+All I lose is a half packet that is filled with 0, this should be resynchronised by the timestamp.
+
+
+When switch into **Alarm**:
+
+```text
+
+t0)
+
+0_7_7_6_x_x
+
+
+t1)
+
+Alarm rang off, clean up the scene:
+
+output: 0_7_7_6_x_x
+
+But this will cause confusion, so we can change the output into 1_7_7_6_x_x
+
+t2)
+
+Alarm timestamp
+
+output: 1_Tim_eSt_amp_cou_nt!
+
+```
+
+So technically, the timestamp packets consist of 2 16-bit packets, one contains the clean up information, one contains the actual timestamp.
+
+Before making changes, I will need to back up the design.
+
+
+After added some extra features, the new version of this encoder "Col_encoder_3B_plus" has been committed, it mainly addressed the issues we talked about:
+
+When the state switches from **SORT** to __ALRM__, there might be confusions of how many pixels were actually logged in the last packet.
+
+![The switch between SORT and ALARM is now different in Col_encoder_3B_plus](./img/Col_encoder_3B_plus_extra_feature_when_accu_was_interrupted_by_alarm.png)
+
+This is not to be confused with the resurrection process's consecutive output of 3 packets.
+
+
+__SORT__ switch to __ALRM__ process:
+
+```text
+
+1_111_110_dat_dat_dat -> 1_xxx_xxx_xxx_xxx_xxx
+
+```
+
+resurrection process:
+
+```text
+
+1000_0000_0000_0000 -> xxxx_xxxx_xxxx_xxxx -> xxxx_xxxx_xxxx_xxxx
+
+```
+
+where x represents the timestamp
+
+This should address the ambiguity when switching states.
+
+
+
 
