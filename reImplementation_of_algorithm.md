@@ -532,7 +532,7 @@ Here is the summary:
 
 There are mainly 2 steps:
 
-+ Filterting
++ Filtering
 + Compression
 
 **Filtering** basically encode the data in a row with the difference between the prediction using surrounding pixels and the actual value.
@@ -555,7 +555,7 @@ Here is the image to demonstrate these encoding:
 
 ![different filtering for image encodings](./img/different_filterings_for_images.png)
 
-**However, commonly for the optimal efficiency, palatte images and sub-8 bit grayscale images simply use none filtering.**
+**However, commonly for the optimal efficiency, palette images and sub-8 bit greyscale images simply use none filtering.**
 
 **Compression**, the step following filtering is also known as **DEFLATE** algorithm. It combines LZ77 coding along with a huffman coder.
 
@@ -1079,7 +1079,7 @@ The coding will start with 1 byte of all zeros:
 
 0000_0000, nnnn_nnnn, {raw coding content}
 
-It will start with a sepcial byte of all zeros and then followed by a byte of number of pixels which ranges from 0-255. This means this encoder shall be limited to max 256 pixels.
+It will start with a special byte of all zeros and then followed by a byte of number of pixels which ranges from 0-255. This means this encoder shall be limited to max 256 pixels.
 
 _Under all zeros cases:_
 
@@ -1283,11 +1283,11 @@ Roughly looking, the simulation looks okay, the counting and state switching see
 
 ![The general accumulating behaviour is correct](./img/Simulation_on_Col_encoder_3B_general_behaviour_correct.png)
 
-The swtiching between accumulating and zero is also correct:
+The switching between accumulating and zero is also correct:
 
 ![State switch from SORT to ZERO is correct](./img/State_switch_from_sorting_to_zero_correct.png)
 
-When the state machine transitions from zero back to SORT, it will go through this ressurection state, where 3 16-bit data packets were expected to report the detailed timestamp.
+When the state machine transitions from zero back to SORT, it will go through this resurrection state, where 3 16-bit data packets were expected to report the detailed timestamp.
 
 ![Resurrection looks correctly reported](./img/State_switch_from_zero_back_to_sort_is_correct.png)
 
@@ -1300,7 +1300,7 @@ Alarm went off during SORT state where pre-sorted data were output before the ti
 
 Alarm went off during Zero state, and it correctly returned back to ZERO after a brief SORT state
 
-![Alarm went off during Zero and it was corerctly handled](./img/Alarm_went_off_at_state_zero_where_a_brief_SORT_was_produced_b4_it_returns_to_zero.png)
+![Alarm went off during Zero and it was correctly handled](./img/Alarm_went_off_at_state_zero_where_a_brief_SORT_was_produced_b4_it_returns_to_zero.png)
 
 So far the behaviour looks correct, but I have not tested any extreme cases.
 
@@ -1309,11 +1309,11 @@ Overall, this encoder is able to handle timestamp report, ditching 0s and keep a
 
 ## 28 Feb
 
-Since I have finished the implementation, now I want to throw the design into sythesis and get a rough estimation of area.
+Since I have finished the implementation, now I want to throw the design into synthesis and get a rough estimation of area.
 
 Since there are a lot of documents needed during synthesis and place and route, and most of them are fairly manual and repetitive, I am thinking of writing a script to generate these documents depending on the flow and technology node.
 
-So after the synthesis, I think genus reported the area of this deisgn is 13,830.332 um2 in total.
+So after the synthesis, I think genus reported the area of this design is 13,830.332 um2 in total.
 
 Which is a lot bigger compared to my previous design, which is 39.760 X 189.840 = 7,548.0384 um2
 
@@ -1364,11 +1364,11 @@ Also the useful command:
 
 **get_common_ui_ma** 
 
-can translate the clssic command to the stylus common ui command.
+can translate the classic command to the stylus common ui command.
 
 This should help a lot about the automation process.
 
-Okay, I think the script that generates a genral mmmc file and load up the design into innovus has succeeded.
+Okay, I think the script that generates a general mmmc file and load up the design into innovus has succeeded.
 
 The script shall expect the following:
 
@@ -1393,7 +1393,7 @@ This has yet been properly placed yet.
 
 Now I shall keep finishing the implementation.
 
-Ok, it seems that after detailed roting, the layout is suffering from incredible routing congestion.
+Ok, it seems that after detailed routing, the layout is suffering from incredible routing congestion.
 
 ![The detailed routing shows that this routing congestion problem is very strong](./img/loads_of_routing_drv_after_detailed_routing.png)
 
@@ -1505,7 +1505,7 @@ we might have cases like the following
 
 This will cause confusion at the decoding process, but this should be fixable. As to fix this confusion, I simply just do not output the second packet. 
 
-All I lose is a half packet that is filled with 0, this should be resynchronised by the timestamp.
+All I lose is a half packet that is filled with 0, this should be re-synchronised by the timestamp.
 
 
 When switch into **Alarm**:
@@ -1566,6 +1566,84 @@ resurrection process:
 where x represents the timestamp
 
 This should address the ambiguity when switching states.
+
+
+## 11 Mar
+
+As suggested, the time clock can be removed from the module and be used as a global signal, I will now remove time_cnt from the design. 
+
+It should reduce the design area to a much smaller size.
+
+Just re-ran the simulation and it looks the module still behaves alright even after getting the internal counter removed.
+
+
+Now I am just doing a simple synthesis using my script to get a rough idea of the size after removing the internal counter.
+
+After the simple implementation, the following area can be shown:
+
+![The area got much smaller after removing the internal counter](./img/Col_encoder_3B_plus_with_counter_removed_area.png)
+
+This gives us the total size of 10610.046 um2, which would produce the dimension as 40 X 265.25115
+
+Now I will do a quick place and route
+
+Here is the result of the quick place and route:
+
+![Managed to squeeze the design into a smaller size](./img/Managed_to_squeeze_the_circuitry_play_chaing_pin_placement.png)
+
+It appears that I can squeeze the design into a smaller size by changing the output pin placement on top and side. 
+
+This results in a DRC clean, timing-met design
+
+This design has the dimension of the following:
+
+**34.160 X 340.200 = 11621.232**
+
+
+
+## 12 Mar
+
+Think I should move on to the row based implementation we talked about yesterday.
+
+
+As discussed I will name our design straightforward as:
+
+Row_encoder_5P  --> deal with 5 pixels at a time 
+
+Row_encoder_10P --> deal with 10 pixels at a time
+
+The 5 pixel one will produce packets like following:
+
+1_dat1_dat2_dat3_dat4_dat5
+
+10 pixel one may need to pack the values into a 32 bit number:
+
+10_dat1_dat2_dat3_dat4_dat5_dat6_dat7_dat8_dat9_datX
+
+
+When the module encounter a repeating pattern on the pixel value, it will stop sending data until a new pattern appears.
+
+Before the new data was sent, the timestamp will be transmitted over.
+
+it will start with value 0:
+
+0_xxx_xxxx_xxxx_xxxx
+
+
+So far we are expecting a global timer with a 48-bit counter,
+
+If we are running at 20MHz, this would give us the in total time length of:
+
+$$\frac{1}{20,000,000} \times 2^{48} = 14073748.8355328$$
+
+This will give us 3909.374676537 hours of counting time.
+
+
+
+## 13 Mar
+
+
+
 
 
 
