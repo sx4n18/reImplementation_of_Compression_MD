@@ -1642,6 +1642,10 @@ This will give us 3909.374676537 hours of counting time.
 
 ## 13 Mar
 
+Started implementing the simple design.
+
+Even though I do not think this design will be significantly compressing much information.
+
 
 
 
