@@ -1647,8 +1647,76 @@ Started implementing the simple design.
 Even though I do not think this design will be significantly compressing much information.
 
 
+## 17 Mar
+
+I have tried to implement the mentioned 3-bit, 5-pixel row based compression module, but it appears to me that processing data in the real time is difficult.
+
+Technically, at our **ALARM** state, we should report **8000** to mark the loop around of our "second" meter (least 15 bit counter of tiktok).
+
+Imaging the case where the module is outputing data but interrupted by an alarm like following:
+
+```text 
+pixel_in 		pixel_buffer 		encoded_data 		tik_tok		
+
+ 36AB              0000                0000              0:5:97
+ 24BB              36AB                36AB              0:5:98
+ 612C              24BB                24BB              0:5:99 ----> ALARM triggered
+ 5244              612C                ????		         0:6:00 
+```
+
+we would not know what we should output in this case because in the designed algorithm, alarm and data output has the same level of priority.
+
+Therefore, the designed the module cannot process non-stop data flow in real time, it needs a pause for for alarm output before resuming the data output.
+
+So the definition of "timestamp" should be more clear, should it be the record of the pixel output? Or the absolute time?
+
+```text 
+pixel_in  		row_count  		absolute_time
+      			(option A)       (option B)
+ 36AB 			 	0  				0
+ 24BB  				1               1
+ 612C  				2  				2 
+ 5244  				3 				3 
+  |  				|               4
+  |                 |               5
+ 36AC               4               6
+```
+
+From my understanding, to implement a global time counter, we should use absolute time instead of row count, but this would result in the desynchronisation between the pixel values and actual time the pixel values were produced.
 
 
+I am considering the possible solution can be implemented. But we can only delay the process for at most 1 clock cycle.
+
+In this solution, I will run the compression module at **40MHz** instead of **20MHz**, so that I can process the pixel values at half of the timestamp increment step.
+
+```text 
+pixel_in 		pixel_buffer 		encoded_data 		tik_tok							  
+
+ 36AB              0000                0000              0:5:97									
+ 24BB              36AB                36AB              0:5:98								
+ 612C              24BB                24BB              0:5:99 ----> ALARM triggered 	
+ 5244              612C                8000		         0:6:00 ----> Send special packet 			  
+  |				   612C				   612C				 0:6:00 (half timestamp) --> output the data       
+ 25CC			   5244				   5244              0:6:01
+```
+
+In the cases of the repeating pattern:
+
+```text 
+pixel_in 		pixel_buffer 		encoded_data 		tik_tok							Saved_TS  
+
+ 36AB              0000                0000              0:5:24							 0000	
+ 24BB              36AB                36AB              0:5:25							 0000
+ 24BB              24BB                24BB              0:5:26 						 0000
+ 24BB              24BB                 X		         0:5:27 			  			 0000
+ 24BB			   24BB				    X				 0:5:28        					 0000
+ 25CC			   24BB				   	X                0:5:29 ----> record the TS ---->0000
+  |				   25CC				   8029 (29)         0:5:29 ----> half timestamp	 0529
+ 5608			   25CC	  			   25CC				 0:5:30 
+ 3200			   5608				   5608              0:5:31
+```
+
+And it seems that we do not even need to save extra timestamp to make it work, all we need is to double the clock speed but to make timestamp increment on 20MHz.
 
 
 
