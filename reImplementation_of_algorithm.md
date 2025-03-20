@@ -1711,7 +1711,7 @@ pixel_in 		pixel_buffer 		encoded_data 		tik_tok							Saved_TS
  24BB              24BB                 X		         0:5:27 			  			 0000
  24BB			   24BB				    X				 0:5:28        					 0000
  25CC			   24BB				   	X                0:5:29 ----> record the TS ---->0000
-  |				   25CC				   8029 (29)         0:5:29 ----> half timestamp	 0529
+  |				   25CC				   8029 (29)         0:5:29 ----> ha24BB
  5608			   25CC	  			   25CC				 0:5:30 
  3200			   5608				   5608              0:5:31
 ```
@@ -1719,4 +1719,188 @@ pixel_in 		pixel_buffer 		encoded_data 		tik_tok							Saved_TS
 And it seems that we do not even need to save extra timestamp to make it work, all we need is to double the clock speed but to make timestamp increment on 20MHz.
 
 
+
+## 18 Mar
+
+I will now fixing the implementaion using this new solution.
+
+
+So far it seems that the transition between IDLE and PUSH has been correct:
+
+![Transition from IDLE to PUSH has been correct](./img/correct_transtion_between_IDLE_and_PUSH_where_data_was_correct_output_and_saved.png)
+
+
+And the saving and output of the data has been correct.
+
+
+Then the wait state where there is repeating pattern has been recognised, the state transitioned from PUSH to WAIT:
+
+![correct transition between PUSH and WAIT where repeating patterns were recoginised](./img/Repating_pattern_correctly_recognised_leading_2_WAIT_state.png)
+
+
+During WAIT state, the alarm went off, therefore the special packet 8000 were successfully sent:
+
+![Successfully sent special packet to mark the loop of the tiktok counter](./img/Special_packet_when_alarm_went_off_during_WAIT_state.png)
+
+
+Then the module switch back to PUSH from WAIT becuase the input data is different:
+
+![WAKE up call were made to wake the moudle up from state WAIT](./img/WAKE_up_call_made_to_start_PUSHing_again.png)
+
+
+But the problem occured when the module tried to switch from PUSH to ALARM and then back to PUSH:
+
+![Problem occured when state switches from PUSH to ALARM and then comes back to PUSH again](./img/Jumpy_state_occured_during_switch_of_PUSH_and_ALARM.png)
+
+
+It accidentally switched to state WAIT after switching back to ALARM, this is because the state flag was not set when it switches to state ALARM.
+
+After change the logic, it now will correctly flag up the state so the state swithcing is correct.
+
+But we will lose one packet of data if there is data change during state ALARM. Therefore, extra care was taken during ALARM to make it save the changed data if there is new data during state ALARM.
+
+Now the behaviour is correct:
+
+![Now that the state switching is correct and also no data is being lost](./img/Correct_state_switch_is_now_implemented_between_PUSH_and_ALARM.png)
+
+
+Satisfied~~~
+
+
+
+## 19 Mar
+
+Now I am finishing up the flow of the design of the row based encoder.
+
+Synthesis flow is now finished, and apparently, the area is much smaller.
+
+
+![Synthesis report of the row based encoder shows that the area of this design is tiny](./img/Synthesis_area_report_of_Row_encoder_5P.png)
+
+Now I am finishing up the design of the layout for this design.
+
+Since this is for a module that matches 5 pixels, which should allow us 100 um for width.
+
+Just found a bug in my rtl code where "data ready" signal was driven by multiple module, therefore caused this signal to be synthesised incorrectly.
+
+now re-run the synthsis... In the same time, I did not use the titktok bit after bit 15. This has been disconncted by genus.
+
+ 
+The updated area of the synthesised result of the design:
+
+![The updated area of the synthesised design with a slightly different area](./img/updated_synthesis_result_with_a_slightly_different_area.png) 
+
+possible floorplan dimension tried in innovus:
+
+89.060 X 151.830 =  um
+
+But during place and route, I found that the tool synthesised scan chains for this design without my command.
+
+I am gonna have a look about it.
+
+I do not know why Genus synthesised scanned registers for some internal registers like repeating_pixels and tok_record, the common ground of these two is that they are constaly getting compared and saved if needed.
+
+For example, it inserted the repeating_pixel_reg using a scan register:
+
+```verilog
+
+  SDFRRQHDX1 \repeating_pixels_reg[1] (.RN (rst_n), .C (clk), .D
+       (repeating_pixels[1]), .SD (pixel_in[1]), .SE (n_82), .Q
+       (repeating_pixels[1]));
+```
+
+Where this value might get updated if n_82 is 1, this matches the functionality, but causing some issue here.
+
+But after the simuilation check, it appears that the logic overall is correct.
+
+I think it might be due to the fact that syn_map_effort has been set high by default, I have now just added the following line in the script:
+
+```tcl
+set_db syn_map_effort medium
+```
+
+I will see how this comes out.
+
+Okay, this did not change a thing, I guess I will have to limit the use of scan register during synthesis.
+
+
+Think I will have to manually block the cells from being mapped.
+
+
+## 20 Mar
+
+I still have not been able to find the exact command to exclude the cells from being used.
+
+Will keep on searching for it.
+
+
+So apparently, I cannot change the attribute of a batch of library cells.
+
+But I can change the feature of a single library cell feature using the following command:
+
+```tcl 
+
+set_db lib_cell:default_emulate_libset_max/D_CELLS_HD_LPMOS_slow_1_62V_125C/SDFRRQHDX1 .avoid true
+
+```
+
+And you can navigate library cells using the following command:
+
+```tcl 
+@genus:root: 33> vcd libraries/
+@genus:root:.libraries 36> vcd base_cells/
+@genus:root:.libraries 39> vcd SDFRRQHDX1
+@genus:base_cell:SDFRRQHDX1 40> vls -attribute
+```
+
+This will display the attribute of this cell:
+
+```text 
+Total: 3 items
+./                            (base_cell)
+    Attributes:
+      area = 70.2464
+      base_class = core
+      base_name = SDFRRQHDX1
+      bbox = {0.0 0.0 15.68 4.48}
+      class = core
+      escaped_name = SDFRRQHDX1
+      is_flop = true
+      is_rise_edge_triggered = true
+      is_sequential = true
+      is_timing_defined = true
+      lib_cells = lib_cell:default_emulate_libset_max/D_CELLS_HD_LPMOS_slow_1_62V_125C/SDFRRQHDX1
+      name = SDFRRQHDX1
+      obj_type = base_cell
+      site = site:core_hd
+      symmetry = xy
+base_pins/                   
+pg_base_pins/                
+
+```
+
+After setting this cell as avoid, the synthesised results used another scan register for our design.
+
+SDFRRQHDX0
+
+After blocking the mentioned one, it will just use another scan register
+
+SDFRRQHDX2
+
+I will just go with DFT flow...
+
+So far it seems that I can continue with the DFT flow, but another constraint SDC file needs to be written to meet the timing needs.
+
+The size of the implementation can may be finalised in just 88.45 X 153.72 = 13,596.534 um2
+
+![initial layout of the DFT version of the Row_encoder_5P](./img/DFT_layout_implementation_Row_encoder_5P_dft.png)
+
+and so far it seems the routing can be problematic especially near rear power stripes...
+
+For example, power stripe used METAL4, input signal used METAL 3, so it cannot use other METAL layers to finish routing when there are vias from METAL4 to METAL1.
+
+![problem with input ports that may suffer from routing](./img/Problem_with_the_input_signal_and_power_stripes_cannot_use_another_routing_metal.png)
+
+
+I will also now start updating my script so that I can use DFT flow during pnr.
 
