@@ -1904,3 +1904,25 @@ For example, power stripe used METAL4, input signal used METAL 3, so it cannot u
 
 I will also now start updating my script so that I can use DFT flow during pnr.
 
+
+## 24 Mar
+
+Maybe I will keep on going with the pnr implementation and see how the routing will be...
+
+I have finished early global route and the it seems there is no routing congestion.
+
+What is coming up next should be clock tree synthesis, and also because I did not prepare a different constraint file for scan mode and functional mode, the hold time for this design is not good.
+
+After changing the SDC file content and update the constraint mode, the hold timing issue with functional bits is now resolved.
+
+Now I should do clock tree synthesis...
+
+Finished the whole layout design, thanks to the wide space left during floorplan, the design came back with 0 violations for DRC, antenna and connectivity.
+
+![Final layout of the 5 pixel row based encoder with dimension of 88.45 and 153.72](./img/Final_layout_Row_based_encoder_5P_88_45_X_153_72.png)
+
+
+Probably I should continue with another implementation or algorithm.
+
+
+  
