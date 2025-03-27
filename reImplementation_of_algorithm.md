@@ -1925,4 +1925,40 @@ Finished the whole layout design, thanks to the wide space left during floorplan
 Probably I should continue with another implementation or algorithm.
 
 
-  
+## 25 Mar
+
+I will now proceed with 10 pixel design, but this has to be carefully designed.
+
+For this row based compression scheme with 10 pixels, it will be called Row_based_encoder_10P
+
+
+```text 
+There is a global timer that will increment over 20 MHz with a total length of 45 bits long
+
+It will take 10 pixels and last 30 bit of timestamp in and process similarly like 5 pixels
+
+Normal data mode:
+
+There is no repeating pattern, the output data should be 00_dat_dat_dat_dat_dat_dat_dat_dat_dat_dat.
+
+When there is the repeating pattern , the module will halt outputting data until this pattern is broken.
+
+
+When timer loops around:
+
+The module shall output the special packet 10_00_0000_0000_0000_0000_0000_0000_0000
+
+8000_0000
+
+
+When the pattern is broken:
+
+The module will first output the timestamp (the last 30 bit of clock counter) 01_TimeStamp_minuteAndSeconds
+
+This will then be followed by the actual data.
+
+
+```
+
+Also I have been thinking about how downsampling should be done.
+
