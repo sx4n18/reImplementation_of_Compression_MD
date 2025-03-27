@@ -1962,3 +1962,10 @@ This will then be followed by the actual data.
 
 Also I have been thinking about how downsampling should be done.
 
+
+## 27 Mar
+
+Sick yesterday, so I will start working again today.
+
+will continue the 10 pixel row based compression.
+
