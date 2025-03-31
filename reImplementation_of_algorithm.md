@@ -1969,3 +1969,44 @@ Sick yesterday, so I will start working again today.
 
 will continue the 10 pixel row based compression.
 
+
+## 28 Mar
+
+Now continue the implementation,
+
+
+## 31 Mar
+
+The implementation is easy enough to be implemented, so I would assume it should behave alright.
+
+And the simple testbench shows that it is doing what I want it to do.
+
+![The waveform from simvision shows that the behaviour of the pushing process is correct](./img/PUSH_seems_to_work_just_fine_for_Row_encoder_10P.png)
+
+And the transition from push to WAIT is correct when there is a repeating pattern.
+
+![Simvision showed that the push to wait has been correct when there is a repating pattern](./img/PuSH_to_Wait_is_correct_for_Row_encoder_10P.png)
+
+And of course the transition from WAIT back to PUSH has also been correct.
+
+![SimVision gives correct behaviour of resurrection process from WAIT to PUSH](./img/Resurrection_from_WAIT_has_also_been_correct_4_Row_encoder_10P.png)
+
+Where it will first output the timestamp where the unrepeating pattern happened and then followed by the pixel values and then new pixel values.
+
+
+The synthesis flow now has added DFT scan registers, and this gave me the total area of 12,404 um2
+
+Also, I need to update the Gen_doc_pnr script to involve dft flow.
+
+I have just now added the support for DFT support on the automating script Gen_doc_pnr.
+
+But I do realised that the output constraint SDC file still contains library specific information like the following:
+
+```tcl 
+
+set_driving_cell -lib_cell INHDX1 -library D_CELLS_HD_LPMOS_slow_1_62V_125C -pin "Q" [get_ports rst_n]
+```
+
+The library **D_CELLS_HD_LPMOS_slow_1_62V_125C** used in synthesis may not be the one chosen by the user, this has been set as default in synthesis.
+
+
