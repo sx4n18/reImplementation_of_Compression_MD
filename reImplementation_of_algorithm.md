@@ -2010,3 +2010,36 @@ set_driving_cell -lib_cell INHDX1 -library D_CELLS_HD_LPMOS_slow_1_62V_125C -pin
 The library **D_CELLS_HD_LPMOS_slow_1_62V_125C** used in synthesis may not be the one chosen by the user, this has been set as default in synthesis.
 
 
+
+## 1 Apr
+
+Now I should finish the implementation of the 10 pixels design and see what the layout looks like.
+
+Also realised after cheking the reminder saying adding the filler after route requires eco route to avoid DRC errors.
+
+This is a lessson to be remembered.
+
+But this is an easy fix.
+
+and the final layout looks like this:
+
+![The final layout of the Row based encoder of 10 pixels](./img/Final_layout_Row_based_encoder_10P_violations_clean.png)
+
+This layout gives a total area of 8063.283 um2, think this is just the die area...
+
+
+cus the total dimension of this layout is:
+
+109.80 X 166.32 = 18261.936
+
+
+## 2 Apr
+
+Now I am actually curious about the UMC documnets Steve sent me.
+
+So I think we do not have the UMC65 PDK installed yet, but it seems we may be able to access it with no problems.
+
+Will now move on to the python implementation for the compression algorithms.
+
+I will verify the implemented column based and row based algorithm and also try and see if I can implement some more entropy based algorithm.
+
