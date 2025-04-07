@@ -2067,5 +2067,11 @@ Think there is this question:
 I shall update this in the excel DPRAMLP_solutions_comparison.xlsx
 
 
+And yeah, I think the conclusion is that as for smaller bits, the size of the ram will be smaller.
+
+Think the relationship in terms of the bit width and word length to the size is linear, so yeah if we have a irregular size need for the buffer, it will end up getting us a smaller size of RAM.
+
+
+
 
 
