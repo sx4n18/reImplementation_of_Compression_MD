@@ -2043,3 +2043,29 @@ Will now move on to the python implementation for the compression algorithms.
 
 I will verify the implemented column based and row based algorithm and also try and see if I can implement some more entropy based algorithm.
 
+
+## 4 Apr
+
+I should now probably move onto the test for hardware modules, where I would try to feed the module with simulated data and see how that would the encoding process will be like and what the data rate will be.
+
+Also I have been reading about the entropy for 2D images, this shall give me ideas of how to characterise the image's complexity in terms of its entropy. I have found a github repo where the delentropy and deldensity was implemented, it will be looked into.
+
+In the meantime, I will address all the accumulated questions we had in the past.
+
+First, let us look at the delentropy implememtation, the github repo I found was written in Go, I will see how I can rewrite them in python.
+
+
+The delentropy topic will take longer than expected, there are more fine details I need to iron out before a python implementation.
+
+
+Next, let me see if there is any accumulated quesitons I can try to figure out now.
+
+Think there is this question:
+
+**Is the FIFO going to benefit with a more arbitrary word length?**
+
+I shall update this in the excel DPRAMLP_solutions_comparison.xlsx
+
+
+
+
