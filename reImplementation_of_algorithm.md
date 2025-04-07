@@ -2071,6 +2071,22 @@ And yeah, I think the conclusion is that as for smaller bits, the size of the ra
 
 Think the relationship in terms of the bit width and word length to the size is linear, so yeah if we have a irregular size need for the buffer, it will end up getting us a smaller size of RAM.
 
+I think this is basically it.
+
+
+
+## 7 Apr
+
+I shall now start trying using Cocotb to run the test for the compression module on the "real" data to see the output data rate.
+
+I have made a simple testbench on the implementation of the 5P encoder using cocotb, and it is showing that the running has been correct, generating stimulus is also easier than writing a testbench.
+
+![Cocotb test results on the module Row_encoder_5P with the wave displayed on GTK](./img/GTKwave_displaying_waveform_for_cocotb_test_on_ROW_5P.png)
+
+Think it shuould be easy now to dump the generated data into the moudle for quick test and data collection.
+
+
+
 
 
 
