@@ -2086,7 +2086,13 @@ I have made a simple testbench on the implementation of the 5P encoder using coc
 Think it shuould be easy now to dump the generated data into the moudle for quick test and data collection.
 
 
+## 8 Apr
 
+Think I can first do the test on the simple single particle images and then check the more realistic images.
+
+Working on it.....
+
+Now I am trying to set up the testing~~~
 
 
 
