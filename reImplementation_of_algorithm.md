@@ -2094,6 +2094,14 @@ Working on it.....
 
 Now I am trying to set up the testing~~~
 
+And also I did a small testing where the monitor was written up as a coroutine and got "forked" into the process, this monitor will be up and running with the testing simultaneously and then print out the monitored value.
+
+This has prove to be effective:
+
+![The printed out information from the monitor in this cocotb tester](./img/CocoTB_simple_test_with_a_monitor_printing_out_message.png)
+
+![The waveform shows that the monitor has been behaving correctly in the cocotb tester](./img/Matching_simulation_waveform_where_the_output_matches_the_output_monitored_by_cocotb.png)
+
 
 
 
