@@ -2103,5 +2103,40 @@ This has prove to be effective:
 ![The waveform shows that the monitor has been behaving correctly in the cocotb tester](./img/Matching_simulation_waveform_where_the_output_matches_the_output_monitored_by_cocotb.png)
 
 
+## 9 Apr
 
+I will now start testing just one sub-channel with a monitor coroutine that would write into a text file.
+
+I have managed to quantise and split the data of Column B and use that data to feed the module in cocotb.
+
+Below is the simulation waveform from the simulation.
+
+![Simulation waveform obtained from the cocotb test](./img/Waveform_showing_the_correct_behaviour_of_the_output_COCOtest_using_real_data.png)
+
+And the monitor I wrote will write the observed data into a text file and it can be seen that the data matches the waveform:
+
+![the monitored data written in hex format that matches the observation from the waveform](./img/Monitored_data_that_was_written_into_the_text_file_matches_the_waveform_exactly.png)
+
+Now I can extend this test structure into the entire image, instead of a single sub-channel.
+
+This will require me to write a more level-up testbench that will restart the simulation every time for 200 times.
+
+
+
+## 10 Apr
+
+I have just finished implementing the testfactory where it will loop the same time for 2 times using the same test structure and test module, but with different test cases.
+
+According to the simulation wave, it is running sequentially with one test case after another, this should be fine given that we have the test will always rest the module before feeding the data.
+
+The following console content shows that 2 different tests were done sequentially with each one taking 51060 ns.
+
+![The test factory generates 2 testcases using the same test structure and module](./img/Small_trial_on_test_factory_loop_through_same_tests_using_different_testing_data_test_case_2_succeeded.png)
+
+
+Also I managed to write the monitored data into a single text file, where the shared text file will be opened before tests and written some lines before getting more appended content in the coroutine which will be repeated for 200 times.
+
+![The monitored data was written and logged up in the shared text file](./img/The_text_file_where_monitored_data_was_all_observed_and_written_in_a_single_file.png)
+
+The displayed text file was based on a sliced quantised column B image which has a dimension of (1000, 1000), therefore our test will need to be repeated 200 times.
 
