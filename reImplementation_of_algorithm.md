@@ -2140,3 +2140,18 @@ Also I managed to write the monitored data into a single text file, where the sh
 
 The displayed text file was based on a sliced quantised column B image which has a dimension of (1000, 1000), therefore our test will need to be repeated 200 times.
 
+
+## 11 Apr
+
+I will implement the testing for the 10 pixel row encoder module.
+
+This is very simple, all I need to do is change some minor parameters.
+
+Very quickly, the test is finished for Row_encoder_10P
+
+![size of the collected data from both 5 pixels and 10 pixels row encoder](./img/Test_results_that_gives_the_size_of_the_encoded_data.png)
+
+the collected results show that for the same image, 5 pixels row encoder have slightly smaller data size in total where it has 2904 bytes while the 10 pixels row encoder has 3184 bytes
+
+I should have a look again at the image that we might be able to generate that is long enough for us to run the simulation.
+
