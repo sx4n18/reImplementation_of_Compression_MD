@@ -2155,3 +2155,27 @@ the collected results show that for the same image, 5 pixels row encoder have sl
 
 I should have a look again at the image that we might be able to generate that is long enough for us to run the simulation.
 
+
+## 14 Apr
+
+I will now clone again the data generation repo and see if I can generate an extra long image using the repo.
+
+Found the code where the data generation can be done using the compositePSD and a little time, the example demonstrated the generation where a cloud volume of 0.1 by 1 by 0.2 m3 and the image sensor is put in the cube centre and offset by half of the arm separation in the vertical dimension.
+
+The generated images showed image of 2560 um by 10000 um, think these 2 parameters were defined in these two python statements:
+
+```python
+	## The detector has been defined at centre of the cloud volume with 256 pixels and each takes 10 um
+	detector = Detector(np.array([0.05, 0.5, 0.1-arm_sep/2]), n_pixels=256, pixel_size=10e-6, arm_separation=arm_sep)
+	## the cloud will take images for 0.01 m, which is 10,000 um
+    run = cloud.take_image(detector, distance=0.01, single_image=True)
+```
+
+Where the first sentence instantiates a detector at the centre of the cube with the pixel size and numbers, and the second statement decided the image will be 0.01 m long.
+
+![2 different images generated at the same cloud volume](./img/data_generation_example_with_2_different_arm_span.png)
+
+Think I may be able to use these methods to generate our own images.
+
+but the process is gonna be slow.
+
