@@ -2168,7 +2168,7 @@ The generated images showed image of 2560 um by 10000 um, think these 2 paramete
 	## The detector has been defined at centre of the cloud volume with 256 pixels and each takes 10 um
 	detector = Detector(np.array([0.05, 0.5, 0.1-arm_sep/2]), n_pixels=256, pixel_size=10e-6, arm_separation=arm_sep)
 	## the cloud will take images for 0.01 m, which is 10,000 um
-    run = cloud.take_image(detector, distance=0.01, single_image=True)
+	run = cloud.take_image(detector, distance=0.01, single_image=True)
 ```
 
 Where the first sentence instantiates a detector at the centre of the cube with the pixel size and numbers, and the second statement decided the image will be 0.01 m long.
@@ -2178,4 +2178,61 @@ Where the first sentence instantiates a detector at the centre of the cube with 
 Think I may be able to use these methods to generate our own images.
 
 but the process is gonna be slow.
+
+
+## 15 Apr
+
+Now I will try to imitate the script example and generate my own images.
+
+So I have managed to save and extract the image data in a pickle file.
+
+And to extract the image, you should take the image array from "image_array_2 = run_2_data.images[0].amplitude.intensity.field"
+
+
+And that is how I got this image:
+
+![extracted image from the quick experiment part 2 arm separation 0.1](./img//home/j05003sx/PycharmProjects/AST-model/data/experiment_2.png)
+
+
+## 16 Apr
+
+I can actually just use the 256 pixel image first and then run the simulation, then also incorporate a FIFO.
+
+Or I can write out the monitored data and the time stamp and then write a python script to see how big the fifo size it needs.
+
+also I am wondering what the relationship it is between the amplitude.field and amplitude.intensity.field, amplitude.field is an array of complex numbers while amplitude.intensity.field gives an array of float64.
+
+By observing the python script, I think my guess is correct. The image that was plotted is the image.intensity.field and it has been applied with a boundary of "[0] + grayscale_bound + [2]", it capped the max intensity to 2 and the min intensity to 0.
+
+I guess also my question is, do we need to limit our intensity value within the range between 0 and 2?
+
+This is a little different from what Jonny has sent me, where the data range is from 0 to 1.
+
+
+I have now just saved the simulated data into a more independently readable file in ImagedRegion_press.npz
+
+I will get back to this tomorrow and try to quantise it using the boundaries set in the data_generation script and see if I can replicate that image.
+
+I will now try to plot the saved images in the style given in the generation script.
+
+
+Just as expected, the images recreated from the intensity file look the same as before.
+
+![the images recreated from the saved data using the bounds look the same as before](./img/re_created_images_from_saved_npy_data_that_looks_exactly_the_same.png)
+
+
+## 17 Apr
+
+From what was tested yesterday, I think I can quantise the images based on my understanding.
+
+Think I will now also implement an 8 pixels row encoder so that they can be fit into the number of pixels of 256.
+
+This should be easy, and all I need to change is some input and output
+
+I also just realised that I do not have enough time gap to send off the complete timestamp. This is because the input data rate is 20 MHz, and my design works at 40 MHz so I only have 1 extra clock cycle to write or output some random information other than the real data.
+
+If I need to output the complete timestamp (possibly 3 encoded data), I need a buffer at least the size of 2-4 row before the encoder so when there is a change in pattern, we need to be able to output both the complete timestamp and the change of the data.
+
+I will focus on the implementation of the 8 pixel or 16 pixel encoder module implementation so I can at least have a test.
+
 
