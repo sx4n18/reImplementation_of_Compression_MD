@@ -2191,7 +2191,7 @@ And to extract the image, you should take the image array from "image_array_2 = 
 
 And that is how I got this image:
 
-![extracted image from the quick experiment part 2 arm separation 0.1](./img//home/j05003sx/PycharmProjects/AST-model/data/experiment_2.png)
+![extracted image from the quick experiment part 2 arm separation 0.1](./img/experiment_2.png)
 
 
 ## 16 Apr
