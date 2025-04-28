@@ -2236,3 +2236,246 @@ If I need to output the complete timestamp (possibly 3 encoded data), I need a b
 I will focus on the implementation of the 8 pixel or 16 pixel encoder module implementation so I can at least have a test.
 
 
+## 22 Apr
+
+I have got my hands on the XEM3010, now I would be checking the user guide and learning how to use it.
+
+Still trying to install ISE 14.7....
+
+## 24 Apr
+
+Still did not manage to install ISE 14.7 because of this complaint from the installer:
+
+```bash
+libpng warning: Application jmp_buf size changed
+./bin/lin64/xsetup: line 21: 13713 Segmentation fault      (core dumped) ${XLNX_DIR_NAME}/_xsetup "$@"
+```
+
+
+## 25 Apr
+
+Since we have obtained the sample image for a "real" simulated image of 256 pixels in 2 bits intensity, I can also obtain the 3 bit intensity of that image and test it on the module. 
+
+The 3-bit image looks much more "messy":
+
+![same images were converted into 3 bit images and it looks more messy](./img/Same_simulated_images_were_converted_into_3-bit_image_format_and_it_looks_messy.png)
+
+I will now write a simple python implementation of the row based encoder and do a quick test.
+
+Just finished the implementation of the class of Row_encoder_5P.
+
+Also implemented the class of Row_encoder_10P. 
+
+
+## 28 Apr
+
+I have drafted the class of the row encoder, now I will first try to do the test on the quantised Column image (1000, 1000), which has been tested on the hardware.
+
+Just did the test on the written class, but it demonstrates different results as hardware.
+
+![Software implementation of the 5 pixel encoder and 10 pixel encoder shows different results](./img/Software_implementation_of_5pixel_and_10pixel_demonstrates_different_results.png)
+
+In previous hardware test, 5 pixel module gave in total 2904 bytes while in the software implementation, it gave in total 4792 bytes. As for 10 pixel implementation, hardware gave 3184 bytes while software gave 5136 bytes.
+
+This may be the results of continuous encoding. Since I did not reset the encoder, so the encoding will interfere with each other.
+
+I will add the reset mechanism for this encoder now...
+
+Okay, just added the rest mechanism, but this has no effects on the encoded data size.
+
+I will now have to compare the encoded data side by side with the hardware and figure out the differences.
+
+Will start by checking the encoded data size for each sub-channel.
+
+After comparison, it could be noted that the software implementation gives a different size in channel 84 than the hardware.
+
+The software dumped 37 times of data stream while hardware only needs 13 times, this results in the difference of 74 bytes and 26 bytes.
+
+I will now export specifically this sub-channel and compare them.
+
+
+By observing the raw data, it appears that channel 84 only has 18 rows of non-zero data lines, I do not believe it needs 74 bytes of data.
+
+But I will try to do it manually and see what I will get.
+
+Hardware and software is processing the data slightly differently:
+
+Key raw data:
+
+```text
+...
+0, 0, 0, 0, 0
+0, 0, 0, 0, 0
+0, 1, 0, 0, 0
+0, 1, 0, 0, 0
+0, 1, 0, 0, 0
+0, 2, 0, 0, 0
+0, 1, 0, 0, 0
+0, 2, 0, 0, 0
+0, 2, 0, 0, 0
+0, 2, 0, 0, 0 
+0, 2, 0, 0, 0
+0, 2, 0, 0, 0
+0, 2, 0, 0, 0
+0, 2, 0, 0, 0
+0, 2, 0, 0, 0
+0, 1, 0, 0, 0
+0, 2, 0, 0, 0
+0, 1, 0, 0, 0
+0, 1, 0, 0, 0
+0, 1, 0, 0, 0
+0, 0, 0, 0, 0
+...
+
+```
+
+In this context, 0,1,0,0,0 will be encoded into 0x0008 and 0,2,0,0,0 will be encoded into 0x0010.
+
+
+Hardware process:
+
+```text
+...
+0, 0, 0, 0, 0 
+0, 0, 0, 0, 0           0x0
+0, 1, 0, 0, 0           0x83d7
+0, 1, 0, 0, 0           0x8
+0, 1, 0, 0, 0           0x83dd
+0, 2, 0, 0, 0           0x10
+0, 1, 0, 0, 0           0x8
+0, 2, 0, 0, 0           0x10
+0, 2, 0, 0, 0     ===>  0x83f1
+0, 2, 0, 0, 0           0x8
+0, 2, 0, 0, 0           0x10
+0, 2, 0, 0, 0           0x8
+0, 2, 0, 0, 0           0x83fb
+0, 2, 0, 0, 0           0x0
+0, 2, 0, 0, 0
+0, 1, 0, 0, 0
+0, 2, 0, 0, 0
+0, 1, 0, 0, 0
+0, 1, 0, 0, 0
+0, 1, 0, 0, 0
+0, 0, 0, 0, 0
+...
+
+```
+
+
+Software process:
+
+```text
+0x0000
+0x81EB
+0x0008
+0x81EC
+0x0008
+0x81ED
+0x0008
+0x81EE
+0x0010
+0x81EF
+0x0008
+0x81F0
+0x0010
+0x81F1
+0x0010
+0x81F2
+0x0010
+0x81F3
+0x0010
+0x81F4
+0x0010
+0x81F5
+0x0010
+0x81F6
+0x0010
+0x81F7
+0x0010
+0x81F8
+0x0008
+0x81F9
+0x0010
+0x81FA
+0x0008
+0x81FB
+0x0008
+0x81FC
+0x0008
+```
+
+Based on the analysis it can be seen that the software is ignoring the repeating pattern and quite literally recorded all the raw content.
+
+For example:
+
+```text
+0x81EB
+0x0008
+0x81EC
+0x0008
+0x81ED
+0x0008
+```
+
+This block of encoded data records 3 continuous timestamps but with the same data 0x0008.
+
+Okay, I did not update the repeating pattern every since the initialisation process.
+
+```python
+                if loop == 0:
+                    # This is the first loop, the data will be exported as it is and saved as the repeating pattern
+                    self._repeating_pattern = data[loop]
+                    data_to_write = self.one_by_5_nd_array_to_number(data[loop])
+                    byte_stream.write(struct.pack('H', data_to_write))
+                elif (loop+1)% 2^15 == 0:
+                    # This is the alarm data, this will be sent when the global timer loops around
+                    byte_stream.write(struct.pack('H', 0x8000))
+                else:
+                    # This is the normal data, the data will be exported as it is
+                    # Check if the data matches the repeating pattern
+                    if np.array_equal(data[loop], self._repeating_pattern):
+                        # The data matches the repeating pattern, do not export anything
+                        pass
+                    else:
+                        # The data does not match the repeating pattern, export the timestamp and the data
+                        self._tok_record = loop
+                        # Export the timestamp
+                        byte_stream.write(struct.pack('H', (self._tok_record) | 0x8000))
+                        # Export the data
+                        data_to_write = self.one_by_5_nd_array_to_number(data[loop])
+                        byte_stream.write(struct.pack('H', data_to_write))
+```
+
+This has now been fixed, will run the python implementation now again.
+
+Okay, the running data shows that the exported data size has dropped, but not as much.
+
+check again I realised that the python implementation does not have "raw packing" feature, which works by exporting the raw data line by line if there is no repeating pattern in a continuous stream.
+
+
+After making changes in the class, now for the same data, Row_encoder_5P is now exporting the same amount of data of 2904 Bytes.
+
+This change shall also be applied to 10 pixel encoder class.
+
+Now both the python version of these 2 encoders gave the same results in terms of this same input image.
+
+![Now the python classes of both 5 pixels and 10 pixels are giving the same amount of encoded data](./img/python_classes_now_are_giving_the_same_amount_of_encoded_data_as_hardware.png)
+
+Now I have pushed the 0.06 arm separation data into both 5 pixel encoder and the 10 pixel encoder.
+
+The result shows that the performance for the 5 pixel encoder is still saving more space than 10 pixels encoder in total.
+
+But this result is not saving us a lot of space in total by comparison to the raw data:
+
+![Test on both 5 and 10 pixels encoder show that 5 pixel encoder is giving better results in total than 10](./img/Experiment_on_the_simulated_data_arm_separate_0_06_both_5_and_10.png)
+
+Things get more messy when we push the encoders to their limit with more particles, in the test where arm separation is 0.2. Both encoders struggle with compressing the image.
+
+![Both encoders struggle to make good compression in this case when bigger arm separation gives more challenge](./img/Experiment_shows_this_encoder_cannot_give_optimal_compression_when_it_is_messy.png)
+
+I am supposing hardware should give the same results, but this can be tested if needed.
+
+
+
+
+
