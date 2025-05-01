@@ -2476,6 +2476,31 @@ Things get more messy when we push the encoders to their limit with more particl
 I am supposing hardware should give the same results, but this can be tested if needed.
 
 
+## 29 Apr
+
+Okay, I have managed to install the ISE 14.7 on an earlier version of Ubuntu.
+
+I can now work on the project and probably try out the exemplary project from Steve.
+
+In the same time, I would really like to write an rANS encoder to have a feel of how good rANS can be in cases like what we have covered previously.
 
 
+## 1 May
+
+I have read through all the documents and tutorials, think I have now a rough idea of what rANS is doing and going on about.
+
+I will try to implement a python class that will do some simple ANS compression.
+
+
+I first ran a small analysis for the images I've been looking at, and see how much "information" it contains by calculating it entropy information.
+
+and it seems there are still loads of 0s in the image
+
+![histogram information of both images showing similar distribution with loads of 0](./img/histogram_information_of_both_images_from_0_06_to_0_2.png)
+
+Based on this, I tried to calculate the entropy of both images, which should give me an average bit size per pixel shall cost, and by "ideal" algorithm, how much it would take to represent such information:
+
+![Entropy analysis shows that even the perfect entropy encoder will only be able to compress the images up to 50%](./img/Entropy_analysis_of_both_images_from_0_06_to_0_2_that_gives_me_some_insight.png)
+
+So, what should be the "perfect" choice of labelling block?
 
