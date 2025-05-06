@@ -2526,5 +2526,26 @@ Whole data histogram: [0.84637372 0.08959741 0.03743587 0.01449496 0.00864536 0.
 This made me think that I should use the whole data set PDF to set M or use the whole data probability to generate the data labelling.
 
 
+## 6 May
+
+I will use the whole data histogram to characterise the entropy encoder cus the value for one bin cannot be 0.
+
+And I would like to use the size of 1024 to model this distribution.
+
+By having a simple normalisation to 1024, we have 
+
+```
+image_006_cnt_approx:  [867.  92.  38.  15.   9.   2.   1.   1.]
+Sum of image_006_cnt_approx:  1025.0
+
+image_02_cnt_approx:  [734. 134.  84.  41.  21.   5.   2.   1.]
+Sum of image_02_cnt_approx:  1022.0
+```
+
+To make the total count to 1024, we can have it altered to:
+
+```
+[868.  96.  32.  16.   8.   2.   1.   1.]
+````
 
 
