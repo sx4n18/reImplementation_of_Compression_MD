@@ -2504,3 +2504,27 @@ Based on this, I tried to calculate the entropy of both images, which should giv
 
 So, what should be the "perfect" choice of labelling block?
 
+
+## 2 May
+
+Now that I have had my rANS encoder, I could do the test on the images I have before. The only thing I need to think about is how to wisely choose **M** and samples.
+
+Ideally, you would want to use all the data in the image to create your **M** and then use that, but due to the practicality, it is not possible to view all the data before compressing them.
+
+I would try to use the first 32 pixel values to compress the first 32 pixels, and then update the compressor every 32 pixels.
+
+Or I could try to use the overall distribution information and approximate that with a small enough block labelling.
+
+The problem with the application for this encoder is that not all pixel values will show up in this case, when sampling the first 1024 pixels of the first sub-channel, values like 5,6,7 did not show up at all:
+
+```text
+sample data PDF: [0.79882812 0.10449219 0.06835938 0.02539062 0.00292969 0.       0.         0.        ]
+Total count of the sample data: 1024
+Whole data histogram: [0.84637372 0.08959741 0.03743587 0.01449496 0.00864536 0.00232264 0.00062563 0.00050441]
+```
+
+This made me think that I should use the whole data set PDF to set M or use the whole data probability to generate the data labelling.
+
+
+
+
