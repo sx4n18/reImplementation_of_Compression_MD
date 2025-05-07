@@ -2549,3 +2549,46 @@ To make the total count to 1024, we can have it altered to:
 ````
 
 
+## 7 May
+
+
+I will use the previously set frequency sequence to try to encode the messy image.
+
+In the meantime I was just wondering how the RLE will do for the challenging image:
+
+and it appears both 2 byte run length encoder will produce in total **89220 bytes**, by comparison, there are in total **95904 bytes** in the image. 
+
+In the test for both 5 and 10 pixel encoders, 5 pixel encoder will produce in total **58456 bytes** out of **93656.25 bytes** and 10 pixel encoder will produce **76224 bytes**. 
+
+The total image size difference is because 256 cannot be fully divided by 5 or 10, to make the comparison fair, I used 250 pixels instead.
+
+But still, for our big messy images, 5 pixel encoder still performs better.
+
+So I tested my naive simple ANS against parts of the image, because if I run the whole image, it will likely overflow.
+
+but the result is surprisingly good.
+
+I chose the first 100,000 pixels, which will give me 300,000 raw bits, if all these bits were coded "perfectly", we shall have 78534.64933832546  bits (with my own approximated probability) or 78525.63545320586  bits (with raw statistical probability).
+
+And my encoder ended up having 78543 bits in total, which is very close to the "perfect" size, only 0.011% longer than information.
+
+so if this can work, it will be very effective dealing with our messy images.
+
+
+I will now use the same encoder to try 0.2 image...
+
+
+![The entropy encoder is doing a very good job overall with only 0.022% larger than the information and 5.8% larger when its more messy](./img/Entropy_encoding_with_both_0_06_and_0_2_images_first_100_000_pixels.png)
+
+
+It seems that even tho using a fixed encoder with the fixed rate will bring some wasted space, the overall save is still very competitive.
+
+an estimated size of the compressed data will be very close to the ideal "perfect" entropy-based estimation.
+
+I personally think this is very promising if all the detailed technical issues can be resolved.
+
+
+Also I will start working on the streaming version of this encoder, and test it out.
+
+To think about it, streaming ANS should be more suitable for our case.
+
