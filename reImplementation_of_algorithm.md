@@ -2592,3 +2592,64 @@ Also I will start working on the streaming version of this encoder, and test it 
 
 To think about it, streaming ANS should be more suitable for our case.
 
+
+
+## 8 May
+
+I will manually generate a string of symbols that will reflect the provided frequencies to feed into the streaming ANS and see how much bitstream I will get in terms of the total image.
+
+After using the streamANS and tested out in the whole image, it appears that in order to encode the whole image, all we need is 27964 bytes.
+
+```text
+************************************************************
+This is the streaming ANS encoder for the quantised image 0.06
+Final state is: 1545
+Bitstream length is:  223844
+Size of the quantised image 0.06 using streaming_ANS:  223855  bits (0.239% longer than information)
+This is equivalent to:  27982.0  bytes
+**************************************************************
+```
+
+Similar experiment has also been applied to the more messy image 0.2 where I got the results quite as expected:
+
+```text
+
+**************************************************************
+This is the streaming ANS encoder for the quantised image 0.2
+Final state is: 1545
+Bitstream length is:  384380
+Size of the quantised image 0.2 using streaming_ANS:  384391  bits (0.744% longer than information)
+This is equivalent to:  48049.0  bytes
+**************************************************************
+```
+
+Again, the RAW image will take 95904 bytes in total.
+
+I should now started making animations for my work... and also consider how to implement this in hardware.
+
+
+## 9 May
+
+I will try to generate what was mentioned last time in the meeting by Jonny about the simulation  for the single particle group.
+
+Having a look at the class and the document attached, I think my best bet would be to instantiate a GammaPSD and then using the method 
+
+```python
+self.from_mean_variance(cls, number_concentration, mean, variance, **kwargs)
+```
+
+where number concentration is the total number of particles, mean is the mean size of the population, variance is also self-explanatory.
+
+So to think about it, I should just set the mean as the particle size I want and then set the variance as 0.
+
+But this is not doable, this is because variance needs to be divided to get parameters of PSD PDF.
+
+So I may just still set variance as a tiny number like 1e-5 or something to still have some variance but mainly distributed nearby the mean.
+
+Or I may need to crack the code myself and write up the new CloudVolume class.
+
+I will set up a very simple and focused sphere group first and then consider cracking the code myself.
+
+
+
+
