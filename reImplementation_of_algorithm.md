@@ -2707,6 +2707,16 @@ The calculated sheets were saved in the csv files.
 
 I will now run through the previously generated images and make a spreadsheets to list all the different simulations and try to run the encoding process with the 5 pixel encoder and see how much space I can actually save from these images.
 
+All the images have now been plotted and organised in the excel file, I will now start running the encoder and see how much compression rate for each image will look like.
+
+I will remove the test run for mean size of 2e10-6 and 5e10-6, cus the mean particle size in these two simulations is smaller than the pixel size.
+
+The compression percentage has been logged into the chart.
+
+Think I will have to make some small changes that will track the output rate of the encoder. For example, I can produce a list of output bytes for each loop or accumulated byte size at each loop.
+
+I have just added a new method to track the accumulated encoded size, this should come in handy for later analysis.
+
 
 
 
