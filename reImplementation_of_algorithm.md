@@ -2652,4 +2652,61 @@ I will set up a very simple and focused sphere group first and then consider cra
 
 
 
+## 12 May
+
+So I realised that the total number concentration is to show how many particles/m3 there is. It is a total number density for one unit cube of cloud.
+
+
+Back to the simulation, I can probably change the number density from 50e6 to 500e6 and size from 2 to 30 spheres?
+
+num density = [50e6, 100e6, 200e6, 300e6, 400e6, 500e6]
+mean size = [2, 5, 10, 20, 30]
+
+for simplicity, I will just use the from_mean_variance method to instantiate the class and change the number of concentration and mean size, change of the variance is highly unstable and can cause damage to the simulation, and the arm separation will be fixed at 0.06
+
+so somehow, all the simulation for the mean size of 2e-6 seems very odd with very big circles that even the bigger particle mean size would not introduce.
+
+
+Will redo the simulation again to see if this can be reproduced.
+
+Yes, this is reproducible and the pattern looks like this:
+
+![extra big circle showed up when mean size has been set as 2e-6](./img/extra_big_circle_that_does_not_look_right_when_mean_size_set_to_2e-6.png)
+
+So this looks odd, and I will raise this tomorrow with Jonny and see if there is any explanation to this.
+
+As for the rest, I will plot them out in 3 bits image.
+
+![exemplary quantised 3bit image of the most dense and biggest size image](./img/quantised_3B_single_pop_biggest_mean_and_num_of_concentration_image.png)
+
+
+## 13 May
+
+I have made some animation videos to explain basic column based encoder where 2 bits input data is process and sent.
+
+I will now try to plot out the images I have generated for mean size that is bigger than 2e-6.
+
+I have just realised our pixel size is 10e-6, so it is natural the image would be odd for any particles that is smaller than 10?
+
+
+## 14 May
+
+Review on the rANS encoding: the following is the sequence I implemented:
+
+
+[868.  96.  32.  16.   8.   2.   1.   1.]
+
+so the number that needs optimisation is "0" and "1", others should be easily doable, we can probably develop a look up table for quick results, or we can just specifically develop a combination of streaming version and table version.
+
+So I will calculate the table and save it in the excel or csv.
+
+The calculated sheets were saved in the csv files.
+
+
+## 19 May
+
+I will now run through the previously generated images and make a spreadsheets to list all the different simulations and try to run the encoding process with the 5 pixel encoder and see how much space I can actually save from these images.
+
+
+
 
