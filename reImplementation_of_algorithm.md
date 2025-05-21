@@ -2718,5 +2718,23 @@ Think I will have to make some small changes that will track the output rate of 
 I have just added a new method to track the accumulated encoded size, this should come in handy for later analysis.
 
 
+## 21 May
 
+After the meeting yesterday, I will first try to quantise the image slightly differently using the threshold we discussed.
+
+which is [0.42, 0.5, 0.58, 0.66, 0.74, 0.82, 0.9]
+
+and this image looks much better now?
+
+![updated threshold with image for the 500 per cc and mean size 3e-5](./img/updated_theta_con_5_8_3_-5.png)
+
+By comparison, the old image looks like this:
+
+![Old image with threshold looking messy when threshold set up from 0.2 to 0.9](./img/Con_5_8_Size_3_-5.png)
+
+It does look much better now.
+
+Now I will run through the encoder with the updated images and see how that will bring us.
+
+So the results have been overall positive I think, this has significantly reduced our data load, which could be the way forward.
 
