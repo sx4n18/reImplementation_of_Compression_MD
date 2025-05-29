@@ -2738,3 +2738,39 @@ Now I will run through the encoder with the updated images and see how that will
 
 So the results have been overall positive I think, this has significantly reduced our data load, which could be the way forward.
 
+
+## 27 May
+
+After checking the layout carefully for the first design, I think the reset synchronisation has not been correctly designed.
+
+Reset synchronisation should be like the following:
+
+![The reset synchronisation should have 2 registers and input VDD](./img/reset_synchronisation_design_diagram.webp)
+
+After checking the layout, it seems there is no tie high cells in the layout. Instead, the tool has left the tie1 afloat!
+
+![Layout has left input pin of the first reset synchronisation register afloat](./img/reset_synchronisation_first_register_input_left_afloat.png)
+
+I think this is due to the fact that I did not insert the tie high cells in the layout.
+
+
+## 28 May
+
+I should measure the data rate for a single channel using the new method for the row based encoder class I wrote.
+
+The method should spit out the cumulative data size in a list, given a proper timing window, I should be able to calculate the output rate.
+
+Or I could simply just divide the output data size by the total time window, which should be:
+
+$$ \frac{1}{40000000} \times 999 \approx 2.5 \times 10^{-5}$$
+
+In the images generated, the max data rate a single channel can produce is *33.12 MBps*, the minimum data rate is *1.04 MBps*.
+
+This gives the max total output data rate of **13.566 GBps**, the minimum output data rate should be **425.984 MBps**
+
+If I calculate the output data rate based on the image, we shall have a slightly different estimation.
+
+Based on the output total data size for a single image, the max total output data rate could be **4.78 GBps**, the minimum total output data rate is **93.72 MBps**.
+
+It can be seen that the total output data rate can be very different.
+
