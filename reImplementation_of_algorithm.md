@@ -2774,3 +2774,47 @@ Based on the output total data size for a single image, the max total output dat
 
 It can be seen that the total output data rate can be very different.
 
+
+## 29 May
+
+Correction on the calculation from yesterday. Because the sampling rate is 20MHz instead of 40MHz, the total duration for the image should be:
+
+$$ \frac {1}{20000000} \times 999 \approx 5 \times 10^{-5} $$
+
+This should double the duration for this image, which leads to the output rate to be half the rate:
+
+Based on the estimation on a single channels output data size, the total output data rate for 2048 pixels:
+
+Max output data rate:  **6.783 GBps**
+Min output data rate:  **212.992 MBps**
+
+Based on the total output data on one single image, the total output data rate for 2048 pixels:
+
+Max output data rate: **2.39 GBps**
+Min output data rate: **46.86 MBps**
+
+
+## 30 May
+
+Since it has been mentioned in the meeting that the encoder may have problem with the extra extra large particles, I should now run more simulations and generate extra big particles in the image and put them through encoder.
+
+
+with the parameters set as below, I can only get very sparse and simple images.
+
+![very big rosette 2 mm in a 1000 pixels wide detector](./img/simulated_image_with_very_big_rosettes_with_1000_pixels.png)
+
+
+
+## 3 June
+
+
+I tried to rerun some simulation and add the grayscale bound for image plot using their own cloud run plot.
+
+But the image looks very very messy after.
+
+![20 um and arm separation of 0.06m this results in a messy image](./img/resimulation_of_the_data_generation_which_results_in_a_messy_image_w_diff_grayscale_.png)
+
+The only thing different I noticed is that the colour bar is applying 0.9I0 instead of actual 0.9. I0 I think should be the max intensity observed in the imaged region.
+
+
+So I am wondering how should we actually apply the grayscale?
