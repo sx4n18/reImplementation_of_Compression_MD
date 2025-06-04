@@ -2818,3 +2818,8 @@ The only thing different I noticed is that the colour bar is applying 0.9I0 inst
 
 
 So I am wondering how should we actually apply the grayscale?
+
+I will now try to repeat the data generation script with composite particles particle size density distribute and then quantise it using my own quantiser using the 3 bits.
+
+![This is what it looks like with the composite run images there are loads of single pixels can be found](./img/composite_run_with_sphere_columns_and_flakes_run_and_quantised_images.png)
+
