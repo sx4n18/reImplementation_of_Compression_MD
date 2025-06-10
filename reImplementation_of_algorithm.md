@@ -2823,3 +2823,40 @@ I will now try to repeat the data generation script with composite particles par
 
 ![This is what it looks like with the composite run images there are loads of single pixels can be found](./img/composite_run_with_sphere_columns_and_flakes_run_and_quantised_images.png)
 
+
+## 5 June
+
+Following our meeting yesterday where the diodes will be pulled out on both sides with every other diode. So I will split the image into even and odd lanes and throw them into row based encoder and see how much data space it costs for this implementation.
+
+With this arrangement set up, we can see there is some rise of the compressed image size. and the minimum compressed data output rate is 80.9%, which may be less than the original implementation.
+
+This has brought up the output data rate to the following based on the whole image (999, 250) estimation
+
+maximum output data rate up to **2.94 GBps** 
+minimum output data rate to **52.10 MBps**
+
+And based on the single channel output data rate estimation:
+
+maximum output data rate is **4.51 GBps**
+minimum output data rate is **229.38 MBps**
+
+
+Will now look at how to simulate image with bigger particles by changing the size of the particles or something.
+
+
+Also I think I should start off the process flow entirely and make sure all the process work.
+
+This will include all the point including sign off DRC LVS and extraction.
+
+
+
+## 9 June
+
+By reading carefully the code, I managed to make customised rosette with extra thick arms, in the meantime, I managed to incorporate pixels with different distances from the focal point:
+
+![Managed to put four different particles on the same canvas with different levels of focal displacement](./img/manually_leave_particles_on_the_canvas_amplitude_intensity.png)
+
+
+And because of how the rosette AST model was defined, it needs to respect the total area it takes, which is the equivalent circle area plus the overlapped area. This will lead to the fact that if we set the width of the rosette to be extra thick, it will shorten its length.
+
+
