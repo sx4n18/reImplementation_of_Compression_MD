@@ -2860,3 +2860,56 @@ By reading carefully the code, I managed to make customised rosette with extra t
 And because of how the rosette AST model was defined, it needs to respect the total area it takes, which is the equivalent circle area plus the overlapped area. This will lead to the fact that if we set the width of the rosette to be extra thick, it will shorten its length.
 
 
+
+## 10 June
+
+Since the 2nd chip has come back, I will try to do some LVS on it too just to make sure....
+
+I have managed to run DRC at least on the chip2 design, and it seems it is clean except some antenna violations which should have been fixed before tape out.
+
+Now I am just verifying the LVS, which I cannot finish yet due to the fact that the output schematic netlist includes the definition of the blackbox IP which I cannot get. I shall try to email xfab and ask for the spice file for it.
+
+This should be doable.
+
+
+## 13 June
+
+After reviewing the lecturing material from Cadence, I managed to black box the DPRAM module and block the filler cells during LVS.
+
+**_Set up blackbox for LVS_**
+
+Click the include PVL tab, tick Include PVL Rules and tick black box and add the related cell into it:
+
+![Stop LVS from comparing black box content against the schematic](./img/blackbox_a_certain_IP_cell_from_LVS.png)
+
+N.B. This will stop the tool from expanding the content of the black box, but will not stop it from comparing the ports definition and connection.
+
+
+**_Exclude filler cells_**
+
+Similar to black box cell, filler cells can be excluded from lvs comparison.
+
+![Extra settings for excluding cells from lvs process](./img/exclude_filler_cells_from_comparison_lvs_settings.png)
+
+
+**_Add extra rules for LVS_**
+
+Extra rules can be added for lvs, sometimes one may wish to virtually connect 2 points or give an alternative name for the cells or node names.
+
+For example, power ground names may vary after importing into virtuoso from GDSii:
+
+VDD --> VDD:
+
+In this case, rules like following can be added to make the tool associate VDD: to VDD 
+
+```tcl
+lvs_cpoint "VSSM:" VSSM
+lvs_cpoint "VDD18M:" VDD18M
+```
+
+The mentioned rule will bind the net or port VSSM: to VSSM.
+
+All the special characters in the naming need to be within quotes.
+
+Just save the command into a *rul* file and then add them in the rules.
+
