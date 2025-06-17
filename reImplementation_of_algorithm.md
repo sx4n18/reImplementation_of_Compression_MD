@@ -2726,7 +2726,7 @@ which is [0.42, 0.5, 0.58, 0.66, 0.74, 0.82, 0.9]
 
 and this image looks much better now?
 
-![updated threshold with image for the 500 per cc and mean size 3e-5](./img/updated_theta_con_5_8_3_-5.png)
+![updated threshold with image for the 500 per cc and mean size 3e-5](./img/updated_theta_con_5_8_3_-5_image.png)
 
 By comparison, the old image looks like this:
 
