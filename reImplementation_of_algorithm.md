@@ -2913,3 +2913,130 @@ All the special characters in the naming need to be within quotes.
 
 Just save the command into a *rul* file and then add them in the rules.
 
+
+## 17 June
+
+Useful discussion today where we talked about what might be needed for the final implementation.
+
+Key mechanism for the 3-bit to 1-bit conversion has not been established.
+
+Possible ideas:
+
+**_[7,2]==>7, [1, 0]==>0_**
+
+AKA, anything bigger than 50 % will be 7 (111) otherwise 0 (000)
+
+This implementation will convert values from 2 to 7 to 7 and all of the rest to 0. 
+
+This will keep the original data packaging, but the efficiency of this mechanism remains unknown.
+
+
+**_Actual 1 bit imaging_**
+
+Squeezing more rows of pixels into 1 data packet since we have 16 bit, we can squeeze at most 3 rows of images into it.
+
+But this may cause problem with flagging the data packet. 
+
+Users may not know which data is the original 3 bit version, which one is the 1 bit version.
+
+In the same time, data pattern repetition is more difficult.
+
+
+## 18 June
+
+I have tried to do some simple experiment for the image quantisation with the contingency of bipolarisation process.
+
+**_[7,2]==>7, [1, 0]==>0_**
+
+The images from left to right is our results:
+
+![bipolarisation of the image with only either 0 or 7 images](./img/image_quantisation_with_3-bit_and_bipolarised_with_just_0_and_7.png)
+
+Details from the image may be lost, but most of the shapes are kept from this bipolarisation process.
+
+![Small glowing and fainting details are lost in this process](./img/details_with_light_fainting_may_be_lost_with_bipolarisation.png)
+
+I will now run through all these images under the row based encoder and see how much space we can further save from this.
+
+By running the experiment, we can see that the bipolarised data under the 5 pixel row based encoder will take almost half of the size of the original 3-bit images.
+
+By max, it improves the compression rate from 80% to 90%.
+
+
+## 23 June
+
+Now I am also considering what we previously mentioned, filtering.
+
+The filter will simply filter out the single pixel value that does not fit within its surroundings.
+
+Cases like:
+
+```text
+0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 5 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+```
+
+This single pixel value of 5 can be filtered out as irrelevant, but this might not be easy to implement.
+
+All I can think of right now is to apply a convolution filter like below:
+
+```text
+[ 1 1 1
+  1 0 1
+  1 1 1 ]
+```
+
+But is this really a common case to consider?
+
+Like, will this benefit our compression algorithm???
+
+I think this is worth exploring.
+
+I implemented the filtering class, and did a test on a single image(400e6 and 20um config).
+
+This showed that the encoded data size will drop slightly from **5208 bytes** to **4802 bytes**
+
+Running other tests now...
+
+The saved bytes by applying this filtering mechanism are somewhat insignificant in this case and listed below:
+
+
+|     | 10  | 20  | 30   |
+|-----|-----|-----|------|
+| 50  | 6   | 22  | 6    |
+| 100 | 18  | 22  | 28   |
+| 200 | 88  | 166 | 202  |
+| 300 | 170 | 270 | 508  |
+| 400 | 496 | 406 | 966  |
+| 500 | 682 | 658 | 1408 |
+
+The test has been done for configs from 50 per cc to 500 per cc and mean size varies from 10 to 30 um.
+
+The saved percentage in terms of the encoding data size has been listed in the table below:
+
+|     | 10    | 20    | 30    |
+|-----|-------|-------|-------|
+| 50  | 0.8%  | 7.69% | 0.8%  |
+| 100 | 1.34% | 2.56% | 2.11% |
+| 200 | 2.86% | 6.9%  | 5.71% |
+| 300 | 4.09% | 9.11% | 7.05% |
+| 400 | 6.15% | 7.8%  | 9.03% |
+| 500 | 6.79% | 9.32% | 9.64% |
+
+#### Conclusion
+
+1. This filtering **does** save some space for data encoding
+2. The saved space can be **insignificant** when the data density is **low**
+3. As the mean concentration and mean size of particles grow, this saving will be more rewarding
+4. This might be more useful when combined with bipolarisation.
+
+If this bipolarisation applied together with filtering, we can see around 40-50% encoded data drop.
+
+It is mainly the bipolarisation that is contributing the compression and it is easy to implement.
+
+By comparison, filtering is not the most economical approach to implement.
+
+
+
