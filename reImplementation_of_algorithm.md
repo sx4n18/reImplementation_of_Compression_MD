@@ -3039,4 +3039,112 @@ It is mainly the bipolarisation that is contributing the compression and it is e
 By comparison, filtering is not the most economical approach to implement.
 
 
+## 24 June
+
+After the meeting today, I am now rethinking about the data packets. Maybe we can encode the image for every 4-pixels?
+
+So that for a 16-bit data packet, we will have extra 3-bit for opcode or stuff.
+
+And this would also be divisible by 2048.
+
+I will start this encoding algorithm design now...
+
+The thought I have now is to still identify the timestamp from data packet using the starting bit.
+
+__16'H8000__ --> special packet to indicate rollover
+
+__16'H8001__ -- __16'HFFFF__ --> timestmap
+
+As for data the breakdown would be:
+
+| 15 | 14-12 | 11-0 |
+|----|-------|------|
+| 0  | Opcode| data |
+
+As for the Opcode, we can design it later. So far I am thinking to just use the following:
+
++ 000: raw data
++ 001: 1-bit mode start
++ 010: 1-bit mode stop
+
+as for 011 to 111, I have not thought about it yet.
+
+
+### 26 June
+
+We were also talking about 7 pixels instead of 4, if it's 7 pixels, it can be packed into 24-bit packet.
+
+
+I have just implemented the 4-pixel row based encoder, and made it run on the same data as the 5-pixels encoder.
+
+And this shows that the 4-pixel row based encoder demonstrated reasonably large encoded data compared to 5 pixel ones.
+
+But this is not by much, it gives around 5-15% of a boost for the encoded data size compared to the 5-pixel encoders.
+
+
+But, is the current 1-bit mode more efficient? We do not know yet.
+
+The 1-bit mode we implemented so far only rams data into the packet without any checking or optimisation.
+
+
+### 30 June
+
+Okay, I think I can probably do RLE for the binarised data in the designed packet if needed.
+
+In this newly designed scheme, there are both 3-bit mode and 1-bit mode for 4-pixels diodes:
+
+////////////////////// 3-bit mode ///////////////////////////
+
+1. raw data packet if there is no repetition
+2. silence during repetition
+3. export timestamp when the pattern repetition stops 
+4. special packet if the global clock rolls over
+
+
+
+Raw data pack:
+
+**0**\_**000**\_{12-bit raw data for 4 pixels}
+
+
+Special packet:
+
+**1**\_000-0000-0000-0000
+
+
+Time stamp:
+
+**1**\_\{15-bit global time\}
+
+
+
+////////////////////// 3-bit mode ///////////////////////////
+
+
+
+
+////////////////////// 1-bit mode ///////////////////////////
+
+1. Simple run length encoding when run length equals or is bigger than 3
+2. No timestamp, only data and run length
+3. If its not run length, raw data pack in one word with 3 group of pixels
+
+
+Raw data pack:
+
+**0**\_**001**\_\{12-bit raw data for 12 pixels\}
+
+
+RLE packet:
+
+**0**\_**010**\_\{xxxx\}\_\{8-bit run length\}
+
+
+////////////////////// 1-bit mode ///////////////////////////
+
+I will try to implement this in verilog tomorrow...
+
+
+
+
 
