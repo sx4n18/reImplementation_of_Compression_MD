@@ -3146,5 +3146,133 @@ I will try to implement this in verilog tomorrow...
 
 
 
+### 1 July
 
+I have just implemented the Row based decoder for 5 pixels.
+
+This turned out to blow out one problem:
+
+The decoded images do not match the image input.
+
+This is an expected "problem" because of the way the encoder works.
+
+Because the encoder only encode changing unique patterns, when the last few input data changes, it will not output anything.
+
+Which means form the receiver's point of view, it does not know how many rows has been processed by the encoder.
+
+But the receiver can still plot out images as the shape they want, if they have the clear dimension of it.
+
+So far, the decoder works and produces expected results.
+
+
+![The implemented decoder works just fine even though the decoded image may be "shorter" than expected](./img/decoder_trying_to_crack_the_output_and_showing_expected_results_where_sizes_may_not_match_the_original.png)
+
+
+### 2 July
+
+So we had a meeting yesterday talking about the necessity of 1-bit mode for the compression algorithm.
+
+Piotr was talking that I can probably encode the image using by introducing extra word after the special packet to introduce 1-bit mode and also send more time stamp.
+
+
+#### **What he said**
+
+Imaging we have global clock of 45-bit called tiktok, we will send a special packet 16'H8000 when there is a roll over for tiktok\[14:0\], this will be followed by another packet. This following packet can start with either 10 or 11. 
+
+If this additional packet start with 10, it is another time stamp, but it is the tiktok\[28:15\].
+
+If this additional packet start with 11, it is the start of 1-bit mode indicator.
+
+But if we do encode the image this way, will it get confused???
+
+
+if we have the following encoded data:
+
+```text
+0x1011
+0x8000
+0x8111
+0x7FFF
+```
+
+it can be interpreted as:
+
+```text
+*ver 1*
+data -> 001_000_000_010_001
+time rollover  
+timestamp -> 000_0001_0001_0001 (pattern breaks)
+new pattern -> 111_111_111_111_111
+```
+
+or it can be interpreted as:
+
+```text
+*ver 2*
+data -> 001_000_000_010_001
+time rollover
+another timestamp -> 10_00_0001_0001_0001
+new non-repeating data -> 111_111_111_111_111
+```
+
+So This is not an additional rule, this will contradict with the existing rule we have.
+
+Or we will just simply design the compression module to output 1-bit mode automatically.
+
+So it is very difficult to add new rules without introducing conflicts to the current rules.
+
+
+#### Edited
+
+This may not be 100% impossible, cus if we set the rule that 0x8000 should be strongly associated with the following packet. It can set up distinct meanings for the encoded data.
+
+Strong associated:
+```text
+0x8000 <---> 0b10_xxxxxxx (simple rollover)
+0x8000 <---> 0b11_xxxxxxx (specials)
+
+0b1_xxxxxxxx <----> 0b0_xxxxxxxxx (pattern just broke)
+```
+
+This indicate that whenever the decoder receives the special packet 0x8000, it should expect another packet to decide what the case is.
+
+Based on this, the previous case would not exist:
+
+```text
+0x1011
+0x8000 ---
+         |
+0x8111 ---> indicates simple roll over with the tiktok [28:15] = 00_0001_0001_0001
+0x7FFF ---> straight following the roll over timestamp
+```
+
+So the decoding for this should be as follow:
+
+```text
+data-> 001_000_000_010_001
+## time stamp rollover, tiktok[28:0] = 00_0001_0001_0001-000_0000_0000_0000
+data-> 111_111_111_111_111
+```
+
+If it is the interpretation of **ver 1**, the encoded data should be:
+
+```text
+0x1011
+0x8000 ----
+          |
+0x8111 ------> simple roll over
+
+0x8111 ----
+          |
+0x7FFF -------> new pattern starting from time stamp 00_0001_0001_0001-000_0001_0001_0001
+```
+
+In the new rule, interpretation of **ver 2** will not be correct.
+
+
+### 9 July
+
+After reviewing the proposed new ideas for this compression, I do not want to proceed with it. But probably at a later stage.
+
+Will have to add a input filter now to add the feature of polarisation.
 
